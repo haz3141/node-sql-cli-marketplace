@@ -1,9 +1,7 @@
-const connection = require('./db');
+const db = require('./db');
 
-connection.connect(function(err) {
+db.connection.connect(function(err) {
     if (err) throw err;
-    console.log(`Connected as ID ${connection.threadId}`);
-    connection.end()
-    console.log(`Connection Ended`);
-    // START MAIN LOOP
+    console.log(`Connected as ID ${db.connection.threadId}`);
+    db.readProducts();
 });

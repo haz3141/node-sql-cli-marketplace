@@ -8,4 +8,18 @@ const connection = mysql.createConnection({
 	database : 'gBay_db'
 });
 
-module.exports = connection;
+function readProducts() {
+    console.log(`Marketplace Selection`);
+    connection.query(
+        'SELECT * FROM products',
+        function(err, res) {
+            if (err) throw err;
+            console.log(res);
+            console.log(JSON.stringify(res, null, 4));
+            connection.end();
+            console.log(`Connection Ended`);
+        }
+    );
+}
+
+module.exports = { connection, readProducts };
