@@ -13,13 +13,18 @@ function readProducts() {
 	console.log(`Marketplace Selection`);
 	connection.query('SELECT * FROM products', function(err, res) {
         if (err) throw err;
-        console.log(res);
+        let storefront = res.map();
+        console.log(res[0]);
 		console.table(res);
 		cli.welcomeUser();
 		db.connection.end();
 		console.log(`Connection Ended`);
 		// console.log(JSON.stringify(res, null, 4));
 	});
+}
+
+function formatResponse() {
+
 }
 
 module.exports = { connection, readProducts };
