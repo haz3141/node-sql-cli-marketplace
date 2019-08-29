@@ -1,4 +1,5 @@
 const mysql = require('mysql');
+const cli = require('./cli');
 
 const connection = mysql.createConnection({
 	host     : 'localhost',
@@ -9,17 +10,16 @@ const connection = mysql.createConnection({
 });
 
 function readProducts() {
-    console.log(`Marketplace Selection`);
-    connection.query(
-        'SELECT * FROM products',
-        function(err, res) {
-            if (err) throw err;
-            console.log(res);
-            console.log(JSON.stringify(res, null, 4));
-            connection.end();
-            console.log(`Connection Ended`);
-        }
-    );
+	console.log(`Marketplace Selection`);
+	connection.query('SELECT * FROM products', function(err, res) {
+        if (err) throw err;
+        console.log(res);
+		console.table(res);
+		cli.welcomeUser();
+		db.connection.end();
+		console.log(`Connection Ended`);
+		// console.log(JSON.stringify(res, null, 4));
+	});
 }
 
 module.exports = { connection, readProducts };
