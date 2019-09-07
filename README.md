@@ -13,7 +13,7 @@ The goal here is to create a CLI application that takes in a command and a query
 
 ## Getting Started
 
-Simply clone the repository, run npm install, provide your own SQL server, and run the schema and seeds queries located in the .sql files:
+Simply clone the repository, run npm install, provide your own SQL server, run the schema and seeds queries located in the .sql files, and finally run main.js:
 
 * `Enter item by ID`
 
@@ -22,6 +22,8 @@ Simply clone the repository, run npm install, provide your own SQL server, and r
 * `Cost calculated`
 
 * `Database updated`
+
+Running manager.js will enable the manager view with multiple backend options like viewing low inventory.
 
 ### Prerequisites
 
