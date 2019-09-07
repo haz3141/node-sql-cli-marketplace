@@ -34,6 +34,25 @@ function readProducts() {
 	});
 }
 
+function managerDisplay() {
+	console.log(`Marketplace Inventory`);
+	connection.query('SELECT * FROM products', function(err, res) {
+		if (err) throw err;
+		store = res;
+		console.table(store);
+		connection.end();
+		console.log(`Connection Ended`);
+	});
+}
+
+function displayLowInventory() {
+	connection.query('SELECT * FROM products WHERE stock_quantity<=5', function(err, res) {
+		if (err) throw err;
+		console.log(`Low Inventory Items`);
+		console.table(res);
+	});
+}
+
 function calculateOrder(order) {
 	if (!store[order[0] - 1]) {
 		order = [];
@@ -76,6 +95,15 @@ welcomeMsg = [
 	}
 ];
 
+managerMsg = [
+	{
+		type    : 'list',
+		message : 'What would you like to do?',
+		choices : [ 'View products for sale.', 'View low inventory.', 'Add to inventory.', 'Add new product.' ],
+		name    : 'optionSelected'
+	}
+];
+
 function welcomeUser() {
 	inquirer.prompt(welcomeMsg).then(function(res) {
 		order = [];
@@ -99,7 +127,7 @@ function updateProducts() {
 			}
 		],
 		function(err, res) {
-            purchased++;
+			purchased++;
 			if (err) throw err;
 			// console.log(res.affectedRows + ' products updated!');
 			// console.log(query.sql);
@@ -108,4 +136,29 @@ function updateProducts() {
 	);
 }
 
-module.exports = { connection, readProducts };
+function welcomeManager() {
+	inquirer.prompt(managerMsg).then(function(res) {
+		switch (res.optionSelected) {
+			case 'View products for sale.':
+				managerDisplay();
+				break;
+
+			case 'View low inventory.':
+				displayLowInventory();
+				break;
+
+			case 'Add to inventory.':
+				console.log('Here');
+				break;
+
+			case 'Add new product.':
+				console.log('Here');
+				break;
+
+			default:
+				break;
+		}
+	});
+}
+
+module.exports = { connection, readProducts, welcomeManager };
