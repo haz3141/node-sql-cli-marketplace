@@ -18,6 +18,69 @@ let itemSelected;
 let unitsSelected;
 let purchased = 0;
 
+welcomeMsg = [
+	{
+		type    : 'input',
+		message : "What is the ID of the item you'd like to buy?",
+		name    : 'itemSelected'
+	},
+	{
+		type    : 'input',
+		message : 'How many units of that item would you like?',
+		name    : 'unitsSelected'
+	}
+];
+
+managerMsg = [
+	{
+		type    : 'list',
+		message : 'What would you like to do?',
+		choices : [ 'View products for sale.', 'View low inventory.', 'Add to inventory.', 'Add new product.' ],
+		name    : 'optionSelected'
+	}
+];
+
+addItemMsg = [
+	{
+		type    : 'input',
+		message : 'What is the ID of the item you would like to add?',
+		name    : 'id'
+	},
+	{
+		type    : 'input',
+		message : 'What is the name of the item?',
+		name    : 'name'
+	},
+	{
+		type    : 'input',
+		message : 'What is the name of the department for the item?',
+		name    : 'department'
+	},
+	{
+		type    : 'input',
+		message : 'What is the price (in cents) of the item?',
+		name    : 'price'
+	},
+	{
+		type    : 'input',
+		message : 'How many of the item are in stock?',
+		name    : 'stock'
+	}
+];
+
+addStockMsg = [
+	{
+		type    : 'input',
+		message : 'What is the ID of the item you would like to update?',
+		name    : 'id'
+	},
+	{
+		type    : 'input',
+		message : 'How many units of this item would you like to add?',
+		name    : 'numUnits'
+	}
+];
+
 function readProducts() {
 	console.log(`Marketplace Selection`);
 	connection.query('SELECT * FROM products', function(err, res) {
@@ -45,11 +108,60 @@ function managerDisplay() {
 	});
 }
 
+function addStock() {
+	console.log(`Marketplace Inventory`);
+	connection.query('SELECT * FROM products', function(err, res) {
+		if (err) throw err;
+		store = res;
+		console.table(store);
+		inquirer.prompt(addStockMsg).then(function(res) {
+			connection.query(
+				'UPDATE products SET ? WHERE ?',
+				[
+					{
+						stock_quantity : (store[res.id - 1].stock_quantity += parseInt(res.numUnits))
+					},
+					{
+						item_id : res.id
+					}
+				],
+				function(err) {
+					if (err) throw err;
+					console.log('Inventory Updated!');
+					managerDisplay();
+				}
+			);
+		});
+	});
+}
+
 function displayLowInventory() {
 	connection.query('SELECT * FROM products WHERE stock_quantity<=5', function(err, res) {
 		if (err) throw err;
 		console.log(`Low Inventory Items`);
 		console.table(res);
+		connection.end();
+		console.log(`Connection Ended`);
+	});
+}
+
+function addItem() {
+	inquirer.prompt(addItemMsg).then(function(res) {
+		connection.query(
+			'INSERT INTO products SET ?',
+			{
+				item_id         : res.id,
+				item_name       : res.name,
+				department_name : res.department,
+				price           : res.price,
+				stock_quantity  : res.stock
+			},
+			function(err, res) {
+				if (err) throw err;
+				console.log('Your item was added to the inventory.');
+				managerDisplay();
+			}
+		);
 	});
 }
 
@@ -82,33 +194,17 @@ function calculateOrder(order) {
 	}
 }
 
-welcomeMsg = [
-	{
-		type    : 'input',
-		message : "What is the ID of the item you'd like to buy?",
-		name    : 'itemSelected'
-	},
-	{
-		type    : 'input',
-		message : 'How many units of that item would you like?',
-		name    : 'unitsSelected'
-	}
-];
-
-managerMsg = [
-	{
-		type    : 'list',
-		message : 'What would you like to do?',
-		choices : [ 'View products for sale.', 'View low inventory.', 'Add to inventory.', 'Add new product.' ],
-		name    : 'optionSelected'
-	}
-];
-
 function welcomeUser() {
 	inquirer.prompt(welcomeMsg).then(function(res) {
 		order = [];
-		itemSelected = order.push(res.itemSelected);
-		unitsSelected = order.push(res.unitsSelected);
+		itemSelected = res.itemSelected;
+		// console.log(itemSelected);
+		order.push(itemSelected);
+		// console.table(order);
+		unitsSelected = res.unitsSelected;
+		order.push(unitsSelected);
+		// console.log(unitsSelected);
+		// console.table(order);
 		console.log('Item selected:', itemSelected);
 		console.log('Units selected:', unitsSelected);
 		calculateOrder(order);
@@ -148,11 +244,11 @@ function welcomeManager() {
 				break;
 
 			case 'Add to inventory.':
-				console.log('Here');
+				addStock();
 				break;
 
 			case 'Add new product.':
-				console.log('Here');
+				addItem();
 				break;
 
 			default:
